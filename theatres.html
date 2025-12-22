@@ -2,14 +2,14 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>ProEventa - Theatres</title>
-  <link rel="stylesheet" href="../style/style.css">
+  <title>It's Showtime - Theatres</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="header">
     <div class="logo">
-      <img src="../assets/logo2.png" alt="logo">
-      <div>ProEventa</div>
+      <img src="assets/logo2.png" alt="logo">
+      <div>It's Showtime</div>
     </div>
 
     <div class="search-bar">
@@ -20,8 +20,8 @@
     </div>
 
     <nav class="nav-menu">
-      <a href="../index.html">Home</a>
-      <a href="theatres.html" style="color: #ac1233">Theatres</a>
+      <a href="Home.html">Home</a>
+      <a href="theatres.html">Theatres</a>
       <a href="movies.html">Movies</a>
       <a href="events.html">Events</a>
       <a href="login.html" id="login-link">Login</a>
@@ -31,7 +31,11 @@
   <main class="container">
     <h1>Theatres</h1>
     <p>Find and book tickets at our partner theatres.</p>
-    <!-- Theatre listings will go here -->
+    <div id="theatres-grid" class="theatre-grid"></div>
   </main>
+
+  <script src="data.js"></script>
+  <script src="auth.js"></script>
+  <script src="theatres.js"></script>
 </body>
 </html>

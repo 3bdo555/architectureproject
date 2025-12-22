@@ -2,14 +2,14 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>ProEventa - Events</title>
-  <link rel="stylesheet" href="../style/style.css">
+  <title>It's Showtime - Events</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="header">
     <div class="logo">
       <img src="assets/logo2.png" alt="logo">
-      <div>ProEventa</div>
+      <div>It's Showtime</div>
     </div>
 
     <div class="search-bar">
@@ -20,10 +20,10 @@
     </div>
 
     <nav class="nav-menu">
-      <a href="../index.html">Home</a>
+      <a href="Home.html">Home</a>
       <a href="theatres.html">Theatres</a>
       <a href="movies.html">Movies</a>
-      <a href="events.html"style="color: #ac1233" >Events</a>
+      <a href="events.html">Events</a>
       <a href="login.html" id="login-link">Login</a>
     </nav>
   </header>
@@ -31,7 +31,11 @@
   <main class="container">
     <h1>Events</h1>
     <p>Discover upcoming events and book your tickets.</p>
-    <!-- Event listings will go here -->
+    <div id="events-grid" class="event-grid"></div>
   </main>
+
+  <script src="data.js"></script>
+  <script src="auth.js"></script>
+  <script src="events.js"></script>
 </body>
 </html>
