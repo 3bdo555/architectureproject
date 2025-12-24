@@ -16,7 +16,7 @@ const id = parseInt(getQueryParam('id'), 10);
 const bookingForm = document.getElementById('booking-form');
 
 if (!type || !id) {
-  bookingForm.innerHTML = `<div style="color:var(--muted)">Invalid booking request. <a href="Home.html">Back to home</a></div>`;
+  bookingForm.innerHTML = `<div style="color:var(--muted)">Invalid booking request. <a href="../index.html">Back to home</a></div>`;
 } else {
   let item;
   if (type === 'movie') {
@@ -26,7 +26,7 @@ if (!type || !id) {
   }
 
   if (!item) {
-    bookingForm.innerHTML = `<div style="color:var(--muted)">Item not found. <a href="Home.html">Back to home</a></div>`;
+    bookingForm.innerHTML = `<div style="color:var(--muted)">Item not found. <a href="../index.html">Back to home</a></div>`;
   } else {
     renderBookingForm(item);
   }

@@ -8,7 +8,7 @@ const bookingId = parseInt(getQueryParam('bookingId'), 10);
 const paymentDetails = document.getElementById('payment-details');
 
 if (!bookingId) {
-  paymentDetails.innerHTML = '<div style="color:var(--muted)">No booking specified. <a href="Home.html">Back to home</a></div>';
+  paymentDetails.innerHTML = '<div style="color:var(--muted)">No booking specified. <a href="../index.html">Back to home</a></div>';
 } else {
   const bookings = getBookings();
   const booking = bookings.find(b => b.id === bookingId);
