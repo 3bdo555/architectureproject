@@ -33,11 +33,11 @@ function renderEvents() {
   for (const e of eventsState.events) {
     const card = document.createElement('div');
     card.className = 'event-card';
+    const imageHtml = e.image ? `<img src="${escapeHtml(e.image)}" alt="${escapeHtml(e.title)}" class="event-image">` : '';
     card.innerHTML = `
+      ${imageHtml}
       <div class="event-name">${escapeHtml(e.title)}</div>
-      <div class="event-meta">${escapeHtml(e.date)} - $${e.price}</div>
-      <div class="event-description">${escapeHtml(e.description)}</div>
-      <div class="event-venue">${escapeHtml(e.venue)}, ${escapeHtml(e.address)}</div>
+      <div class="event-meta">${formatDate(e.date)} • ${escapeHtml(e.venue)}, ${escapeHtml(e.address)}</div>
       <button class="btn book-event">Book Now</button>
     `;
     // Add click event for booking
@@ -59,6 +59,12 @@ searchInput.addEventListener('input', (e) => {
 
 /* simple html escape */
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'<','>':'>','"':'"',"'":'&#39;' })[m]); }
+
+/* format date to readable string */
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
 
 /* init */
 filterEvents();

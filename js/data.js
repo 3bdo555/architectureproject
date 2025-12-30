@@ -1,19 +1,19 @@
-// data.js - Sample data for theatres, events, users, bookings
+// data.js - Sample data for theatres, events, users, booking
 // Uses localStorage for persistence
 
 // Initialize data if not exists
 if (!localStorage.getItem('THEATRES')) {
   localStorage.setItem('THEATRES', JSON.stringify([
-    { id: 1, name: 'AMC Theatres', location: 'Boston, MA', address: '123 Main St' },
-    { id: 2, name: 'Regal Cinemas', location: 'Cambridge, MA', address: '456 Elm St' },
-    { id: 3, name: 'Cinemark', location: 'Somerville, MA', address: '789 Oak Ave' },
-    { id: 4, name: 'Alamo Drafthouse', location: 'Brookline, MA', address: '101 Pine Rd' },
-    { id: 5, name: 'Landmark Theatres', location: 'Newton, MA', address: '202 Maple Ln' },
-    { id: 6, name: 'Showcase Cinemas', location: 'Waltham, MA', address: '303 Birch Blvd' },
-    { id: 7, name: 'Cineplex Odeon', location: 'Quincy, MA', address: '404 Cedar St' },
-    { id: 8, name: 'Marcus Theatres', location: 'Framingham, MA', address: '505 Spruce Ave' },
-    { id: 9, name: 'Bow Tie Cinemas', location: 'Natick, MA', address: '606 Willow Rd' },
-    { id: 10, name: 'Rialto Pictures', location: 'Arlington, MA', address: '707 Ash Ln' }
+    { id: 1, name: 'AMC Theatres', location: 'Boston, MA', address: '123 Main St', lat: 42.3601, lng: -71.0589 },
+    { id: 2, name: 'Regal Cinemas', location: 'Cambridge, MA', address: '456 Elm St', lat: 42.3736, lng: -71.1097 },
+    { id: 3, name: 'Cinemark', location: 'Somerville, MA', address: '789 Oak Ave', lat: 42.3876, lng: -71.0995 },
+    { id: 4, name: 'Alamo Drafthouse', location: 'Brookline, MA', address: '101 Pine Rd', lat: 42.3318, lng: -71.1212 },
+    { id: 5, name: 'Landmark Theatres', location: 'Newton, MA', address: '202 Maple Ln', lat: 42.3370, lng: -71.2092 },
+    { id: 6, name: 'Showcase Cinemas', location: 'Waltham, MA', address: '303 Birch Blvd', lat: 42.3765, lng: -71.2356 },
+    { id: 7, name: 'Cineplex Odeon', location: 'Quincy, MA', address: '404 Cedar St', lat: 42.2529, lng: -71.0023 },
+    { id: 8, name: 'Marcus Theatres', location: 'Framingham, MA', address: '505 Spruce Ave', lat: 42.2793, lng: -71.4162 },
+    { id: 9, name: 'Bow Tie Cinemas', location: 'Natick, MA', address: '606 Willow Rd', lat: 42.2830, lng: -71.3495 },
+    { id: 10, name: 'Rialto Pictures', location: 'Arlington, MA', address: '707 Ash Ln', lat: 42.4154, lng: -71.1565 }
   ]));
 }
 
@@ -27,7 +27,8 @@ if (!localStorage.getItem('EVENTS')) {
       price: 25,
       venue: 'Boston Commons',
       address: '139 Tremont St, Boston, MA',
-      capacity: 1000
+      capacity: 1000,
+      image: '../assets/festival.jpg'
     },
     {
       id: 2,
@@ -37,7 +38,96 @@ if (!localStorage.getItem('EVENTS')) {
       price: 50,
       venue: 'House of Blues',
       address: '15 Lansdowne St, Boston, MA',
-      capacity: 500
+      capacity: 500,
+      image: '../assets/music.jpg'
+    },
+    {
+      id: 3,
+      title: 'Art Exhibition: Modern Masters',
+      description: 'Explore contemporary art from renowned artists.',
+      date: '2023-12-25',
+      price: 30,
+      venue: 'Museum of Fine Arts',
+      address: '465 Huntington Ave, Boston, MA',
+      capacity: 300,
+      image: '../assets/modern2.jpg'
+    },
+    {
+      id: 4,
+      title: 'Comedy Show: Laugh Out Loud',
+      description: 'Hilarious stand-up comedy with top comedians.',
+      date: '2023-12-28',
+      price: 40,
+      venue: 'Wilbur Theatre',
+      address: '246 Tremont St, Boston, MA',
+      capacity: 400,
+      image: '../assets/comedy.jpg'
+    },
+    {
+      id: 5,
+      title: 'Theater Play: Romeo and Juliet',
+      description: 'Classic Shakespearean drama brought to life.',
+      date: '2024-01-05',
+      price: 60,
+      venue: 'American Repertory Theater',
+      address: '64 Brattle St, Cambridge, MA',
+      capacity: 600,
+      image: '../assets/theater.jpg'
+    },
+    {
+      id: 6,
+      title: 'Rock Concert: Electric Vibes',
+      description: 'High-energy rock performance by popular bands.',
+      date: '2024-01-10',
+      price: 55,
+      venue: 'TD Garden',
+      address: '100 Legends Way, Boston, MA',
+      capacity: 2000,
+      image: '../assets/rock.jpg'
+    },
+    {
+      id: 7,
+      title: 'Dance Festival: Rhythm & Motion',
+      description: 'Vibrant dance performances from diverse cultures.',
+      date: '2024-01-15',
+      price: 35,
+      venue: 'Berklee Performance Center',
+      address: '136 Massachusetts Ave, Boston, MA',
+      capacity: 800,
+      image: '../assets/Avengers.jpg'
+    },
+    {
+      id: 8,
+      title: 'Film Screening: Indie Gems',
+      description: 'Showcase of independent films and documentaries.',
+      date: '2024-01-20',
+      price: 20,
+      venue: 'Brattle Theatre',
+      address: '40 Brattle St, Cambridge, MA',
+      capacity: 250,
+      image: '../assets/film.jpg'
+    },
+    {
+      id: 9,
+      title: 'Poetry Reading: Words Alive',
+      description: 'Intimate evening of spoken word and poetry.',
+      date: '2024-01-25',
+      price: 15,
+      venue: 'Harvard Book Store',
+      address: '1256 Massachusetts Ave, Cambridge, MA',
+      capacity: 100,
+      image: '../assets/poetry.jpg'
+    },
+    {
+      id: 10,
+      title: 'Magic Show: Illusion Masters',
+      description: 'Mesmerizing magic tricks and illusions.',
+      date: '2024-01-30',
+      price: 45,
+      venue: 'The Magic Castle',
+      address: '102 Commonwealth Ave, Boston, MA',
+      capacity: 350,
+      image: '../assets/magic.jpg'
     }
   ]));
 }
@@ -53,7 +143,7 @@ if (!localStorage.getItem('USERS')) {
       lastName: 'Smith',
       email: 'alice@example.com',
       address: '123 Main St, Boston, MA',
-      bookings: []
+      booking: []
     },
     {
       id: 2,
@@ -64,7 +154,7 @@ if (!localStorage.getItem('USERS')) {
       lastName: 'Johnson',
       email: 'bob@example.com',
       address: '456 Elm St, Cambridge, MA',
-      bookings: []
+      booking: []
     },
     {
       id: 3,
@@ -75,21 +165,13 @@ if (!localStorage.getItem('USERS')) {
       lastName: 'User',
       email: 'admin@example.com',
       address: '789 Oak Ave, Somerville, MA',
-      bookings: []
+      booking: []
     }
   ]));
 }
 
-if (!localStorage.getItem('BOOKINGS')) {
-  localStorage.setItem('BOOKINGS', JSON.stringify([]));
-}
-
-if (!localStorage.getItem('PAYMENTS')) {
-  localStorage.setItem('PAYMENTS', JSON.stringify([]));
-}
-
-if (!localStorage.getItem('TICKETS')) {
-  localStorage.setItem('TICKETS', JSON.stringify([]));
+if (!localStorage.getItem('BOOKING')) {
+  localStorage.setItem('BOOKING', JSON.stringify([]));
 }
 
 // Helper functions to get/set data
@@ -102,42 +184,36 @@ function setEvents(data) { localStorage.setItem('EVENTS', JSON.stringify(data));
 function getUsers() { return JSON.parse(localStorage.getItem('USERS')) || []; }
 function setUsers(data) { localStorage.setItem('USERS', JSON.stringify(data)); }
 
-function getBookings() { return JSON.parse(localStorage.getItem('BOOKINGS')) || []; }
-function setBookings(data) { localStorage.setItem('BOOKINGS', JSON.stringify(data)); }
-
-function getPayments() { return JSON.parse(localStorage.getItem('PAYMENTS')) || []; }
-function setPayments(data) { localStorage.setItem('PAYMENTS', JSON.stringify(data)); }
-
-function getTickets() { return JSON.parse(localStorage.getItem('TICKETS')) || []; }
-function setTickets(data) { localStorage.setItem('TICKETS', JSON.stringify(data)); }
+function getBooking() { return JSON.parse(localStorage.getItem('BOOKING')) || []; }
+function setBooking(data) { localStorage.setItem('BOOKING', JSON.stringify(data)); }
 
 // Current user session
 function getCurrentUser() { return JSON.parse(localStorage.getItem('currentUser')) || null; }
 function setCurrentUser(user) { localStorage.setItem('currentUser', JSON.stringify(user)); }
 function logout() { localStorage.removeItem('currentUser'); }
 
-// Expire pending bookings older than their expireAt timestamp
+// Expire pending booking older than their expireAt timestamp
 function expireOldBookings() {
-  const bookings = getBookings();
+  const booking = getBooking();
   const now = Date.now();
   let changed = false;
-  bookings.forEach(b => {
+  booking.forEach(b => {
     if (b && b.status === 'pending' && b.expireAt && now > b.expireAt) {
       b.status = 'expired';
       changed = true;
     }
   });
-  if (changed) setBookings(bookings);
-  return bookings;
+  if (changed) setBooking(booking);
+  return booking;
 }
 
 // Cancel a booking by id (mark as cancelled)
 function cancelBooking(bookingId) {
-  const bookings = getBookings();
-  const idx = bookings.findIndex(b => b.id === bookingId);
+  const booking = getBooking();
+  const idx = booking.findIndex(b => b.id === bookingId);
   if (idx === -1) return false;
-  bookings[idx].status = 'cancelled';
-  setBookings(bookings);
+  booking[idx].status = 'cancelled';
+  setBooking(booking);
   return true;
 }
 

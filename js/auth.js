@@ -14,7 +14,7 @@ function updateNav() {
       loginLink.addEventListener('click', function(e) {
         e.preventDefault();
         logout();
-        window.location.href = 'Home.html';
+        window.location.href = 'index.html';
       });
     } else {
       loginLink.textContent = 'Login';
@@ -32,7 +32,7 @@ if (document.getElementById('loginForm')) {
     const user = users.find(u => u.username === username && u.password === password);
     if (user) {
       setCurrentUser(user);
-      window.location.href = 'Home.html';
+      window.location.href = '../index.html';
     } else {
       document.getElementById('errorMsg').textContent = 'Invalid username or password';
       document.getElementById('errorMsg').style.display = 'block';

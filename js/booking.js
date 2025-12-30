@@ -6,6 +6,8 @@ let seatSelectionEnabled = false;
 let currentPendingBookingId = null;
 let holdCountdownInterval = null;
 let expiryWatcherInterval = null;
+// Array to track selected seat IDs
+let selectedSeats = [];
 function getQueryParam(key){
   const url = new URL(window.location.href);
   return url.searchParams.get(key);
@@ -16,7 +18,7 @@ const id = parseInt(getQueryParam('id'), 10);
 const bookingForm = document.getElementById('booking-form');
 
 if (!type || !id) {
-  bookingForm.innerHTML = `<div style="color:var(--muted)">Invalid booking request. <a href="../index.html">Back to home</a></div>`;
+  bookingForm.innerHTML = `<div style="color:var(--muted)">Invalid booking request. <a href="Home.html">Back to home</a></div>`;
 } else {
   let item;
   if (type === 'movie') {
@@ -26,7 +28,7 @@ if (!type || !id) {
   }
 
   if (!item) {
-    bookingForm.innerHTML = `<div style="color:var(--muted)">Item not found. <a href="../index.html">Back to home</a></div>`;
+    bookingForm.innerHTML = `<div style="color:var(--muted)">Item not found. <a href="index.html">Back to home</a></div>`;
   } else {
     renderBookingForm(item);
   }
@@ -48,22 +50,28 @@ function renderBookingForm(item) {
         </div>
         <div class="form-group">
           <label for="seats">🔢 Number of Seats</label>
-          <input type="number" id="seats" min="1" max="2" value="1" required>
+          <input type="number" id="seats" min="1" max="10" value="1" required>
         </div>
       </div>
       <div class="price-label">
-        <span class="price-text">🎫 Price is $10 Per Ticket</span>
+        <span class="price-text">🎫 Price is $12.50 Per Ticket</span>
+      </div>
+      <div id="booking-summary-display" class="booking-summary-display" style="display:none;">
+        <p id="num-seats">Number of Seats: 0</p>
+        <p id="selected-seats">Seats Selected: None</p>
+        <p id="total-price">Total Price: $0.00</p>
       </div>
       <button type="button" id="startSelecting" class="start-selecting-btn">▶ Start Selecting</button>
       <div id="seat-legend" class="seat-legend" style="display:none;">
         <div class="legend-item"><div class="legend-color green"></div> Selected Seat</div>
         <div class="legend-item"><div class="legend-color red"></div> Reserved Seat</div>
-        <div class="legend-item"><div class="legend-color white"></div> Empty Seat</div>
+        <div class="legend-item"><div class="legend-color orange"></div> Pending Seat</div>
+        <div class="legend-item"><div class="legend-color white"></div> Available Seat</div>
       </div>
       <div id="seat-selection" class="seat-selection" style="display:none;">
         <div id="seat-grid" class="seat-grid"></div>
         <div class="screen-indicator">
-          <div class="screen-bar">SCREEN THIS WAY</div>
+          <div class="screen-bar">SCREEN</div>
         </div>
       </div>
       <div id="confirmation-area" class="confirmation-area" style="display:none;">
@@ -105,6 +113,7 @@ function renderBookingForm(item) {
     document.getElementById('seat-selection').style.display = 'block';
     document.getElementById('confirmation-area').style.display = 'block';
     renderSeatGrid();
+    updateSummary();
 
     // Start a periodic expiry watcher while booking page is open
     if (!expiryWatcherInterval) {
@@ -142,12 +151,12 @@ function renderBookingForm(item) {
       status: 'pending',
       expireAt: Date.now() + holdMs // hold configurable
     };
-    const bookings = getBookings();
-    bookings.push(booking);
-    setBookings(bookings);
+    const bookingArray = getBooking();
+    bookingArray.push(booking);
+    setBooking(bookingArray);
 
     const seatsSelected = booking.seats.join(', ');
-    const totalPrice = booking.seats.length * 10;
+    const totalPrice = booking.seats.length * 12.50;
     document.getElementById('summary-body').innerHTML = `
       <tr>
         <td>${escapeHtml(email)}</td>
@@ -217,8 +226,8 @@ function updateHoldDisplayForCurrent() {
     // try to detect a pending booking for this email+item (user may reload)
     const email = document.getElementById('email') ? document.getElementById('email').value : null;
     if (email) {
-      const bookings = getBookings();
-      const b = bookings.find(x => x.status === 'pending' && x.itemId === id && x.email === email);
+      const bookingArray = getBooking();
+      const b = bookingArray.find(x => x.status === 'pending' && x.itemId === id && x.email === email);
       if (b) {
         currentPendingBookingId = b.id;
         startHoldCountdown(b.expireAt);
@@ -227,8 +236,8 @@ function updateHoldDisplayForCurrent() {
     return;
   }
   // If we have a current id, ensure it's still pending and update countdown target
-  const bookings = getBookings();
-  const b = bookings.find(x => x.id === currentPendingBookingId);
+  const bookingArray = getBooking();
+  const b = bookingArray.find(x => x.id === currentPendingBookingId);
   if (!b || b.status !== 'pending') {
     stopHoldCountdown();
     currentPendingBookingId = null;
@@ -245,36 +254,24 @@ function renderSeatGrid() {
   const cols = 10; // number of letter columns (A..J)
   seatGrid.innerHTML = '';
 
-  // Expire any old pending bookings first (from data.js helper)
-  const bookings = expireOldBookings();
+  // Expire any old pending booking first (from data.js helper)
+  const bookingArray = expireOldBookings();
 
-  // Determine reserved seats from existing bookings for this item
+  // Determine reserved seats from existing booking for this item
   const reservedConfirmed = new Set();
   const reservedPending = new Set();
-  bookings.forEach(b => {
+  bookingArray.forEach(b => {
     if (b && b.type === type && parseInt(b.itemId, 10) === id && Array.isArray(b.seats)) {
       if (b.status === 'confirmed') b.seats.forEach(s => reservedConfirmed.add(s));
       if (b.status === 'pending') b.seats.forEach(s => reservedPending.add(s));
     }
   });
 
-  // Header row with column letters A..J (split into two blocks with aisle)
+  // Header row with column letters A..J
   const header = document.createElement('div');
   header.className = 'seat-row header';
   header.appendChild(document.createElement('div')); // empty corner
-  const half = Math.ceil(cols / 2);
-  for (let c = 0; c < half; c++) {
-    const colLabel = document.createElement('div');
-    colLabel.className = 'col-label';
-    colLabel.textContent = String.fromCharCode(65 + c);
-    header.appendChild(colLabel);
-  }
-  const aisleLabel = document.createElement('div');
-  aisleLabel.className = 'aisle';
-  aisleLabel.style.width = '40px';
-  aisleLabel.style.background = 'transparent';
-  header.appendChild(aisleLabel);
-  for (let c = half; c < cols; c++) {
+  for (let c = 0; c < cols; c++) {
     const colLabel = document.createElement('div');
     colLabel.className = 'col-label';
     colLabel.textContent = String.fromCharCode(65 + c);
@@ -292,13 +289,6 @@ function renderSeatGrid() {
     rowWrap.appendChild(rowLabel);
 
     for (let c = 0; c < cols; c++) {
-      // insert aisle before the right block
-      if (c === half) {
-        const aisle = document.createElement('div');
-        aisle.className = 'aisle';
-        rowWrap.appendChild(aisle);
-      }
-
       const seat = document.createElement('div');
       const seatName = `${String.fromCharCode(65 + c)}${r + 1}`; // Column letter + row number
       seat.dataset.seat = seatName;
@@ -341,17 +331,29 @@ function renderSeatGrid() {
 function toggleSeat(seat) {
   if (!seatSelectionEnabled) return;
   if (seat.classList.contains('reserved')) return;
-  const selected = document.querySelectorAll('.seat.selected');
+  const seatId = seat.dataset.seat;
   const maxSeats = parseInt(document.getElementById('seats').value, 10) || 1;
   if (seat.classList.contains('selected')) {
     seat.classList.remove('selected');
+    selectedSeats = selectedSeats.filter(s => s !== seatId);
   } else {
-    if (selected.length >= maxSeats) {
+    if (selectedSeats.length >= maxSeats) {
       alert(`You can select up to ${maxSeats} seat(s).`);
       return;
     }
     seat.classList.add('selected');
+    selectedSeats.push(seatId);
   }
+  updateSummary();
+}
+
+function updateSummary() {
+  const numSeats = selectedSeats.length;
+  const seatsSelected = selectedSeats.join(', ') || 'None';
+  const totalPrice = numSeats * 12.50;
+  document.getElementById('num-seats').textContent = `Number of Seats: ${numSeats}`;
+  document.getElementById('selected-seats').textContent = `Seats Selected: ${seatsSelected}`;
+  document.getElementById('total-price').textContent = `Total Price: $${totalPrice.toFixed(2)}`;
 }
 
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'<','>':'>','"':'"',"'":'&#39;' })[m]); }

@@ -45,6 +45,8 @@ function renderTheatres() {
     });
     theatresGrid.appendChild(card);
   }
+
+
 }
 
 /* event handlers */
@@ -56,6 +58,10 @@ searchInput.addEventListener('input', (e) => {
 
 /* simple html escape */
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'<','>':'>','"':'"',"'":'&#39;' })[m]); }
+
+
+
+
 
 /* init */
 filterTheatres();

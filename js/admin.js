@@ -20,8 +20,8 @@ function renderAdminPanel() {
       <div id="customers-list"></div>
     </div>
     <div class="admin-section">
-      <h2>View Bookings</h2>
-      <div id="bookings-list"></div>
+      <h2>View Booking</h2>
+      <div id="booking-list"></div>
     </div>
     <div class="admin-section">
       <h2>Manage Events</h2>
@@ -52,9 +52,8 @@ function renderAdminPanel() {
   `;
 
   renderCustomers();
-  renderBookings();
+  renderBooking();
   renderEvents();
-  renderPayments();
 
   // Handle add event button
   document.getElementById('add-event-btn').addEventListener('click', () => {
@@ -94,12 +93,12 @@ function renderAdminPanel() {
       userId: null,
       status: 'confirmed'
     };
-    const bookings = getBookings();
-    bookings.push(booking);
-    setBookings(bookings);
+    const bookingArray = getBooking();
+    bookingArray.push(booking);
+    setBooking(bookingArray);
     alert('Booking created successfully!');
     document.getElementById('createBookingForm').reset();
-    renderBookings();
+    renderBooking();
   });
 }
 
@@ -114,10 +113,10 @@ function renderCustomers() {
   `).join('');
 }
 
-function renderBookings() {
-  const bookingsList = document.getElementById('bookings-list');
-  const bookings = getBookings();
-  bookingsList.innerHTML = bookings.map(b => `
+function renderBooking() {
+  const bookingList = document.getElementById('booking-list');
+  const booking = getBooking();
+  bookingList.innerHTML = booking.map(b => `
     <div class="booking-item">
       <p><strong>${b.type}:</strong> ${getItemTitle(b)} | <strong>Email:</strong> ${b.email} | <strong>Status:</strong> ${b.status}</p>
       <button onclick="updateBookingStatus(${b.id}, 'confirmed')" class="btn">Confirm</button>
@@ -146,12 +145,12 @@ function deleteUser(id) {
 }
 
 function updateBookingStatus(id, status) {
-  const bookings = getBookings();
-  const booking = bookings.find(b => b.id === id);
-  if (booking) {
-    booking.status = status;
-    setBookings(bookings);
-    renderBookings();
+  const bookingArray = getBooking();
+  const bookingItem = bookingArray.find(b => b.id === id);
+  if (bookingItem) {
+    bookingItem.status = status;
+    setBooking(bookingArray);
+    renderBooking();
   }
 }
 
@@ -161,16 +160,6 @@ function deleteEvent(id) {
     setEvents(events);
     renderEvents();
   }
-}
-
-function renderPayments() {
-  const paymentsList = document.getElementById('payments-list');
-  const payments = getPayments();
-  paymentsList.innerHTML = payments.map(p => `
-    <div class="payment-item">
-      <p><strong>Payment ID:</strong> ${p.id} | <strong>Booking ID:</strong> ${p.bookingId} | <strong>Amount:</strong> $${p.amount} | <strong>Method:</strong> ${p.method} | <strong>Status:</strong> ${p.status}</p>
-    </div>
-  `).join('');
 }
 
 function getItemTitle(booking) {

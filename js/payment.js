@@ -1,112 +1,115 @@
-// payment.js - PayPal payment flow for bookings
-function getQueryParam(key){
-  const url = new URL(window.location.href);
-  return url.searchParams.get(key);
-}
+/**
+ * main.js - Payment Form Logic
+ * This file handles formatting, validation, and UI toggling
+ */
 
-const bookingId = parseInt(getQueryParam('bookingId'), 10);
-const paymentDetails = document.getElementById('payment-details');
+// 1. Wait for the HTML to be fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Select Elements
+    const paymentForm = document.getElementById('paymentForm');
+    const cardInput = document.getElementById('cardNumber');
+    const expiryInput = document.getElementById('expiry');
+    const cvvInput = document.getElementById('cvv');
+    const successContainer = document.getElementById('successContainer');
 
-if (!bookingId) {
-  paymentDetails.innerHTML = '<div style="color:var(--muted)">No booking specified. <a href="../index.html">Back to home</a></div>';
-} else {
-  const bookings = getBookings();
-  const booking = bookings.find(b => b.id === bookingId);
-  if (!booking) {
-    paymentDetails.innerHTML = '<div style="color:var(--muted)">Booking not found.</div>';
-  } else if (booking.status === 'confirmed') {
-    paymentDetails.innerHTML = `<div class="success-message"><h2>Already Paid</h2><p>Booking ${booking.id} is already confirmed.</p><a class="btn" href="bookings.html">View My Bookings</a></div>`;
-  } else {
-    const seatsList = booking.seats.join(', ');
-    const total = booking.seats.length * 10;
-    paymentDetails.innerHTML = `
-      <div class="dark-bg" style="padding:20px;border-radius:8px">
-        <h2>Booking #${booking.id}</h2>
-        <p><strong>Email:</strong> ${escapeHtml(booking.email)}</p>
-        <p><strong>Seats:</strong> ${seatsList}</p>
-        <p><strong>Total:</strong> $${total}</p>
-      </div>
-    `;
+    /**
+     * Formatting Card Number: Adds a space every 4 digits
+     */
+    cardInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+        e.target.value = formattedValue;
+    });
 
-    // Render PayPal button
-    paypal.Buttons({
-      createOrder: function(data, actions) {
-        return actions.order.create({
-          purchase_units: [{
-            amount: {
-              value: total.toString()
-            }
-          }]
-        });
-      },
-      onApprove: function(data, actions) {
-        return actions.order.capture().then(function(details) {
-          // Mark booking as confirmed
-          booking.status = 'confirmed';
-          setBookings(bookings);
+    /**
+     * Formatting Expiry Date: Adds a slash (/) after 2 digits
+     */
+    expiryInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/[^0-9]/g, '');
+        if (value.length >= 2) {
+            e.target.value = value.slice(0, 2) + '/' + value.slice(2, 4);
+        } else {
+            e.target.value = value;
+        }
+    });
 
-          // Create Payment record
-          const payment = {
-            id: Date.now(),
-            bookingId: booking.id,
-            amount: total,
-            status: 'completed',
-            method: 'PayPal',
-            timestamp: Date.now()
-          };
-          const payments = getPayments();
-          payments.push(payment);
-          setPayments(payments);
+    /**
+     * Form Submission Logic
+     */
+    paymentForm.addEventListener('submit', (event) => {
+        // Stop the page from refreshing
+        event.preventDefault();
 
-          // Create Ticket record
-          const ticket = {
-            id: Date.now(),
-            bookingId: booking.id,
-            userId: booking.userId,
-            itemId: booking.itemId,
-            type: booking.type,
-            seats: booking.seats,
-            issuedAt: Date.now()
-          };
-          const tickets = getTickets();
-          tickets.push(ticket);
-          setTickets(tickets);
+        // Basic clean-up of data for checking
+        const rawCardNo = cardInput.value.replace(/\s/g, '');
 
-          // Send mock email (store in localStorage)
-          const sent = JSON.parse(localStorage.getItem('SENT_EMAILS') || '[]');
-          const emailObj = {
-            to: booking.email,
-            subject: `Booking Confirmation #${booking.id}`,
-            body: `Your booking ${booking.id} for seats ${booking.seats.join(', ')} has been confirmed. Total: $${total}`,
-            timestamp: Date.now()
-          };
-          sent.push(emailObj);
-          localStorage.setItem('SENT_EMAILS', JSON.stringify(sent));
+        // Validation: Check if the card number is long enough
+        if (rawCardNo.length < 16) {
+            alert("Error: Card number must be 16 digits.");
+            return;
+        }
 
-          // Show success, email preview and link to bookings
-          paymentDetails.innerHTML = `
-            <div class="success-message">
-              <h2>Payment Successful ✅</h2>
-              <p>Your booking ${booking.id} is confirmed. A confirmation was sent to ${escapeHtml(booking.email)} (mock).</p>
-              <div style="margin-top:12px"><a class="btn" href="bookings.html">View My Bookings</a></div>
-            </div>
-          `;
+        // Validation: Check CVV length
+        if (cvvInput.value.length < 3) {
+            alert("Error: Invalid CVV.");
+            return;
+        }
 
-          // Append an email preview panel
-          const preview = document.createElement('div');
-          preview.className = 'dark-bg';
-          preview.style.marginTop = '12px';
-          preview.innerHTML = `
-            <h3>Email Preview</h3>
-            <strong>To:</strong> ${escapeHtml(emailObj.to)}<br>
-            <strong>Subject:</strong> ${escapeHtml(emailObj.subject)}
-            <pre style="white-space:pre-wrap;background:#fff;color:#000;padding:10px;border-radius:6px;margin-top:8px">${escapeHtml(emailObj.body)}</pre>
-          `;
-          paymentDetails.appendChild(preview);
-        });
-      }
-    }).render('#paypal-button-container');
-  }
-}
+        // --- SUCCESS ACTIONS ---
+        
+        // 1. Hide the payment form class
+        paymentForm.style.display = 'none';
 
-// Helper functions available from data.js: getBookings, setBookings, escapeHtml
+        // 2. Show the success message container
+        if (successContainer) {
+            successContainer.style.display = 'block';
+        }
+
+        console.log("Payment Successful - Form Hidden");
+    });
+});
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Select elements
+    const form = document.getElementById('paymentForm');
+    const cardInput = document.getElementById('cardNumber');
+    const expiryInput = document.getElementById('expiry');
+    const successDiv = document.getElementById('successContainer');
+
+    // Check if elements actually exist to avoid errors
+    if (!form || !successDiv) {
+        console.error("Required elements not found in HTML!");
+        return;
+    }
+
+    // 1. Formatting Card Number
+    cardInput.addEventListener('input', (e) => {
+        let val = e.target.value.replace(/\D/g, ''); // Remove non-digits
+        let finalVal = val.match(/.{1,4}/g)?.join(' ') || val;
+        e.target.value = finalVal;
+    });
+
+    // 2. Formatting Expiry Date
+    expiryInput.addEventListener('input', (e) => {
+        let val = e.target.value.replace(/\D/g, '');
+        if (val.length >= 2) {
+            e.target.value = val.slice(0, 2) + '/' + val.slice(2, 4);
+        } else {
+            e.target.value = val;
+        }
+    });
+
+    // 3. Handling Submit Action
+    form.addEventListener('submit', function(event) {
+        // Stop the form from refreshing the page
+        event.preventDefault();
+
+        // Perform visual actions
+        form.style.display = 'none';      // Hide the form
+        successDiv.style.display = 'block'; // Show success message
+        
+        console.log("Process complete: Form hidden, Success shown.");
+    });
+
+});

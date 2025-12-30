@@ -10,11 +10,11 @@ const id = parseInt(getQueryParam('id'), 10);
 const detailWrap = document.getElementById('detail');
 
 if (!id) {
-  detailWrap.innerHTML = `<div style="color:var(--muted)">No movie id. <a href="index.html">Back to list</a></div>`;
+  detailWrap.innerHTML = `<div style="color:var(--muted)">No movie id. <a href="Home.html">Back to list</a></div>`;
 } else {
   const m = MOVIES.find(x => x.id === id);
-  if (!m) {
-    detailWrap.innerHTML = `<div style="color:var(--muted)">Movie not found. <a href="index.html">Back to list</a></div>`;
+if (!m) {
+    detailWrap.innerHTML = `<div style="color:var(--muted)">Movie not found. <a href="Home.html">Back to list</a></div>`;
   } else {
     detailWrap.innerHTML = `
       <div class="poster-large">
@@ -30,7 +30,7 @@ if (!id) {
         </ul>
         <div class="buttons">
           <button class="btn watch-trailer">▶ Watch Trailer</button>
-          <button class="btn tickets-btn">🎟 Tickets</button>
+          <button class="btn">🎟 Tickets</button>
         </div>
       </div>
     `;
@@ -42,75 +42,46 @@ if (!id) {
     });
 
     // Add event listener to Tickets button
-    const ticketsBtn = detailWrap.querySelector('.tickets-btn');
+    const ticketsBtn = detailWrap.querySelector('.btn:not(.watch-trailer)');
     ticketsBtn.addEventListener('click', () => {
-      showNearbyTheatersAndShowtimes(m);
+      window.location.href = `booking.html?type=movie&id=${m.id}`;
     });
   }
 }
 
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'<','>':'>','"':'"',"'":'&#39;' })[m]); }
 
-function showNearbyTheatersAndShowtimes(movie) {
-  const modalOverlay = document.createElement('div');
-  modalOverlay.className = 'modal-overlay';
-  modalOverlay.innerHTML = `
-    <div class="modal-content">
-      <button class="close-modal">&times;</button>
-      <div class="modal-body">
-        <h2 class="modal-title">${escapeHtml(movie.title)} - Nearby Theaters</h2>
-        <div class="theater-info">
-          <h3>${escapeHtml(movie.cinema)} (Most Popular Theater)</h3>
-          <p>Location: Boston, MA</p>
-          <div class="modal-showtimes">
-            <h4 style="margin-bottom: 10px; color: var(--accent);">Popular Showtimes</h4>
-            ${movie.showtimes && movie.showtimes.length > 0 ? movie.showtimes.map(st => `<button class="showtime-btn">${st.date} at ${st.time}</button>`).join('') : '<p style="color: var(--muted);">No showtimes available</p>'}
-          </div>
-          <a href="booking.html?type=movie&id=${movie.id}" class="btn book-tickets-btn">Book Tickets</a>
-        </div>
-      </div>
+function showMovieDetailsWithShowtimes(m) {
+  const detailInfo = document.querySelector('.detail-info');
+  const originalContent = detailInfo.innerHTML;
+  detailInfo.innerHTML = `
+    <div class="showtimes-info">
+      <h2>Showtimes</h2>
+      <p><strong>Language:</strong> ${escapeHtml(m.language || 'English')}</p>
+      <p><strong>Cinema:</strong> ${escapeHtml(m.cinema || 'AMC Theatres')}</p>
     </div>
+    <div class="showtimes-buttons">
+      ${m.showtimes ? m.showtimes.map(st => `<button class="showtime-btn">${st.date} - ${st.time}</button>`).join('') : '<p>No showtimes available</p>'}
+    </div>
+    <button class="btn back-to-details" style="margin-top:20px;">Back to Details</button>
   `;
-  document.body.appendChild(modalOverlay);
 
-  // Close modal on click outside or close button
-  modalOverlay.addEventListener('click', (e) => {
-    if (e.target === modalOverlay || e.target.classList.contains('close-modal')) {
-      document.body.removeChild(modalOverlay);
+  // Add event listener to back button
+  const backBtn = detailInfo.querySelector('.back-to-details');
+  backBtn.addEventListener('click', () => {
+    detailInfo.innerHTML = originalContent;
+    // Re-attach event listeners
+    const watchTrailerBtn = detailInfo.querySelector('.watch-trailer');
+    if (watchTrailerBtn) {
+      watchTrailerBtn.addEventListener('click', () => {
+        showMovieDetailsWithShowtimes(m);
+      });
     }
-  });
-}
-
-function showMovieDetailsWithShowtimes(movie) {
-  const modalOverlay = document.createElement('div');
-  modalOverlay.className = 'modal-overlay';
-  modalOverlay.innerHTML = `
-    <div class="modal-content">
-      <button class="close-modal">&times;</button>
-      <div class="modal-body" style="display: flex; gap: 20px; align-items: flex-start;">
-        <div class="modal-poster">
-          <img src="${movie.poster}" alt="${escapeHtml(movie.title)}">
-        </div>
-        <div class="modal-info" style="flex: 1;">
-          <h2 class="modal-title">${escapeHtml(movie.title)}</h2>
-          <div class="modal-meta" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-            <span>Language: ${movie.language || 'N/A'}</span>
-            <span>Cinema: ${movie.cinema || 'N/A'}</span>
-          </div>
-          <div class="modal-showtimes">
-            <h4 style="margin-bottom: 10px; color: var(--accent);">Showtimes</h4>
-            ${movie.showtimes && movie.showtimes.length > 0 ? movie.showtimes.map(st => `<button class="showtime-btn">${st.date} at ${st.time}</button>`).join('') : '<p style="color: var(--muted);">No showtimes available</p>'}
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modalOverlay);
-
-  // Close modal on click outside or close button
-  modalOverlay.addEventListener('click', (e) => {
-    if (e.target === modalOverlay || e.target.classList.contains('close-modal')) {
-      document.body.removeChild(modalOverlay);
+    const ticketsBtn = detailInfo.querySelector('.btn:not(.watch-trailer)');
+    if (ticketsBtn) {
+      ticketsBtn.addEventListener('click', () => {
+        window.location.href = `booking.html?type=movie&id=${m.id}`;
+      });
     }
   });
 }
